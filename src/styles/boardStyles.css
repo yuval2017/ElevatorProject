@@ -1,0 +1,102 @@
+/* src/components/Board.css */
+.square {
+  width: 80px;
+  height: 50px;
+  border: 0.1px solid gray;
+  box-sizing: border-box;
+  margin-left: -2px;
+  margin-top: -2px;
+}
+
+.board {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  background-color: aqua;
+  
+}
+
+.row-number {
+  font-weight: bold;
+  width: 100px;
+  text-align: right;
+  margin-right: 40px;
+  font-size: 12px;
+  white-space: nowrap;
+
+}
+.elavator-button{
+  margin-left: 20px;
+  font-size: 12px;
+  padding: 4px 15px 4px 15px;
+  border-radius: 3px;
+  border: none;
+  color: white;
+}
+.d-flex{
+  align-items: center;
+}
+
+
+
+.square {
+  width: 80px;
+  height: 50px;
+  border: 0.1px solid gray;
+  box-sizing: border-box;
+  margin-left: -2px;
+  margin-top: -2px;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+}
+
+.row-number {
+  font-weight: bold;
+  width: 100px;
+  text-align: right;
+  margin-right: 40px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+
+.elevator-button-waiting,
+.elevator-button-call {
+  margin-left: 20px;
+  font-size: 12px;
+  padding: 4px 15px 4px 15px;
+  border-radius: 3px;
+  border: none;
+  color: white;
+}
+.elevator-button-waiting{
+  background-color: red;
+}
+.elevator-button-call{
+  background-color: green;
+}
+.elevator-button-arrived {
+  margin-left: 20px;
+  font-size: 12px;
+  padding: 4px 15px 4px 15px;
+  border-radius: 3px;
+  border: none;
+  color: white;
+  background-color: blue;
+}
+
+
+.d-flex {
+  align-items: center;
+}
+
+.board .moving-object{
+  position: absolute;
+  bottom: 30;
+  right: 30;
+  z-index: 100;
+
+}
