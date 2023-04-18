@@ -1,7 +1,9 @@
 import { animated, useSpring } from 'react-spring';
+
 import '../styles/movingObjectStyles.css'
 
-const MovingObject2 = ({ y , style, handleElevetorArrived}) => {
+
+const Elevator = ({ y , style, handleElevetorArrived}) => {
   // const spring = useSpring({
   //   to: { y },
   //   config: {
@@ -14,18 +16,18 @@ const MovingObject2 = ({ y , style, handleElevetorArrived}) => {
   //   },
   //   //config: {mass: 1, tension: 170, friction: 500, onRest: handleElevetorArrived() },
   // });
+
+
   const spring = useSpring({
     to: { y },
     config: {
-      duration: 3000,
+      duration: 7000,
       tension: 70,
       friction: 50,
     },
-    onRest: () => {
-      window.requestAnimationFrame(() => {
-        handleElevetorArrived();
-      });
-    },
+   onRest: () => {
+    handleElevetorArrived();
+  },
   });
   
   return (
@@ -33,11 +35,10 @@ const MovingObject2 = ({ y , style, handleElevetorArrived}) => {
       className="moving-object"
       style={{
         ...style,
-        transform: spring.y.interpolate(y => `translateY(${y}px)`),
-        
+        transform: spring.y.to(y => `translateY(${y}px)`),        
       }}
     />
   );
 };
 
-export default MovingObject2;
+export default Elevator;
