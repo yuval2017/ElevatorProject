@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../styles/boardStyles.css';
 import Elevetor from './Elevator'
 import { useQueue } from '../context/Queue';
+import Floor from './Floor';
 
 const Board = ({ rows, columns }) => {
   const squareRef = useRef(null);
-  const [buttonColors, setButtonColors] = useState(Array(rows).fill('green'));
+  const [floorsData, setFloorsData] = useState(createFloorsData())
   const [width, setWidth] = useState(0);
   const [height, setHight] = useState(0);
   const [elevatorsData, setElevatorsData] = useState([]);
@@ -28,24 +29,32 @@ function initElevatorDta(width){
   }
   setElevatorsData(elevators);
 }
+//create floors data
+function createFloorsData() {
+  const ans = [];
+  for (let i = 0; i < rows; i++) {
+    ans.push({
+      key: `floor-${i}`,
+      index: rows - i - 1,
+      button: {color: 'green',},
+    });
+  }
+  return ans;
+}
   //get width and hight for the style of the elevator
   useEffect(() => {
     if (squareRef.current) {
       const { width, height } = squareRef.current.getBoundingClientRect();
       setWidth(width)
       setHight(height)
-
       initElevatorDta(width)
     }
-  }, []);
+  }, [squareRef]);
 
 //set bottun color 
 function setBottunColor(bottunIndex, color){
-    setButtonColors((prevButtonColors) => {
-      const newButtonColors = [...prevButtonColors];
-      newButtonColors[bottunIndex] = color;
-      return newButtonColors;
-    });
+  setFloorsData(prevData =>
+    prevData.map(floorData => floorData.index===bottunIndex?{...floorData, button:{color:color}}:floorData))
 }
 
 function handleElevetorArrived(elevatorId, bottunNum){
@@ -103,10 +112,11 @@ function chooseTheClosestElevator(toFloor){
   return closestElevator
 }
 
+
 //when a floor want elevator reservation
  function handleElevatorReservation(floorIndex) {
     //check if there was a reservation
-    if (buttonColors[floorIndex] !== 'green') {
+    if (floorsData.find(floor => floor.index === floorIndex).button.color !== 'green') {
       console.log("here")
       return; // Do nothing if the button is red or waiting
     }
@@ -141,51 +151,31 @@ function chooseTheClosestElevator(toFloor){
     
   }
 
-
-  //create the board row and columns
-  const createBoard = () => {
-    const board = [];
-    for (let i = 0; i < rows; i++) {
-      const row = [];
-      for (let j = 0; j < columns; j++) {
-        row.push(
-          <div key={`cell-${i}-${j}`} className="square p-2 bg-white" ref={i === 0 && j === 0 ? squareRef : null} />
-        );
-      }
-      board.push(
-        <div key={`row-${i}`} className="d-flex flex-row align-items-center">
-          <div className="row-number me-2">{`${rows-i-1===0?"Grownd Floor" : rows-i-1===1?"1st":rows-i-1===2?"2nd": rows-i-1===3?"3nd":`${rows-i-1}th`}`}</div>
-          {row}
-          <div className="moving-object-wrapper" style={{ position: 'relative', display: 'inline-block' }}>
-      
-            <button type="button"
-                id ={`bottun${rows-i-1}`}  
-                disabled={false} className="elevator-button-arrived"  
-                style={{backgroundColor:buttonColors[rows-i-1] }} 
-                onClick={()=>handleElevatorReservation(rows-i-1)} >Call</button>
-          </div>
-        </div>
-      );
-    }
-    return board;
+  const createBoard2 = () => {
+    return floorsData.map((floorData) => (
+      <Floor
+        columns={columns}
+        squareRef={squareRef}
+        key={floorData.key}
+        index={floorData.index}
+        button={floorData.button}
+        handleElevatorReservation={handleElevatorReservation}
+      />
+    ));
   };
-  
-
 
   
-  return <div className="board">
-    
-      {createBoard()}
+  return (<div className="board">
+      {createBoard2()}
       {elevatorsData.map(data => (
-        <Elevetor
-          key={data.key}
-          y={data.y}
-          style={{backgroundColor: 'green', width: `${width}px`, left: `${data.key*(width-2)}px`}}
-          handleElevetorArrived={handleElevetorArrived(data.key, data.toFloor)}
-        />
-    ))}
-      
-  </div>;
+      <Elevetor
+        key={data.key}
+        y={data.y}
+        style={{backgroundColor: 'green', width: `${width}px`, left: `${data.key*(width-2)}px`}}
+        handleElevetorArrived={handleElevetorArrived(data.key, data.toFloor)}
+      />
+    ))}   
+  </div>);
   
 };
 
