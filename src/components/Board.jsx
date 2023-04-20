@@ -4,96 +4,124 @@ import Elevetor from './Elevator'
 import { useQueue } from '../context/Queue';
 import Floor from './Floor';
 
+
 const Board = ({ rows, columns }) => {
   const squareRef = useRef(null);
+  const [squareData, setSquareData] = useState({})
   const [floorsData, setFloorsData] = useState(createFloorsData())
-  const [width, setWidth] = useState(0);
-  const [height, setHight] = useState(0);
   const [elevatorsData, setElevatorsData] = useState([]);
   const { enqueue, size , dequeue} = useQueue();
 
 
+//that data to change the elevator position, width,hight dynamicly
+const width = squareData.width 
+const height = squareData.height 
 
-function initElevatorDta(width){
-  const elevators = [];
-  for (let i = 0; i < columns; i++) {
-    elevators.push({
-      key: i,
-      y: 0,
-      style: { backgroundColor: 'green', width: `${width}px`, left: `${i*(width-2)}px`},
-      handleElevetorArrived: handleElevetorArrived(i, 0),
-      occupied:false,
-      currFloor: 0,
-      toFloor: -1
-    });
-  }
-  setElevatorsData(elevators);
-}
+
+
+
+
 //create floors data
 function createFloorsData() {
   const ans = [];
   for (let i = 0; i < rows; i++) {
+    const timesArr = new Array(columns).fill({onChange: 'stop', styles: {opacity: 0}}); 
     ans.push({
       key: `floor-${i}`,
       index: rows - i - 1,
-      button: {color: 'green',},
+      buttonStatus: 'call',
+      timeArr: timesArr
     });
   }
   return ans;
 }
-  //get width and hight for the style of the elevator
+
+
+
+
   useEffect(() => {
     if (squareRef.current) {
-      const { width, height } = squareRef.current.getBoundingClientRect();
-      setWidth(width)
-      setHight(height)
+      
+      const { width, height, left, bottom} = squareRef.current.getBoundingClientRect();
+      setSquareData({width, height, left, bottom})
+
       initElevatorDta(width)
     }
-  }, [squareRef]);
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  function initElevatorDta(width){
+    const elevators = [];
+    for (let i = 0; i < columns; i++) {
+      elevators.push({
+        key: i,
+        y: 0,
+        style: { backgroundColor: 'green', width: `${width}px`, left: `${i*(width)}px`},
+        handleElevetorArrived: handleElevetorArrived(i, 0),
+        occupied:false,
+        currFloor: 0,
+        toFloor: -1,
+        color: 'black'
+      });
+    }
+    setElevatorsData(elevators);
+  }
 
 //set bottun color 
-function setBottunColor(bottunIndex, color){
+function setBottunColor(bottunIndex, newStatus){
   setFloorsData(prevData =>
-    prevData.map(floorData => floorData.index===bottunIndex?{...floorData, button:{color:color}}:floorData))
+    prevData.map(floorData => floorData.index===bottunIndex?{...floorData, buttonStatus: newStatus}:floorData))
 }
 
-function handleElevetorArrived(elevatorId, bottunNum){
+function handleElevetorArrived(elevatorId, floorIndex){
   return () => {
+    
+    //make it the elivator color to green, and bottun to the new style
     const optionalFLoorTo = dequeue()
-    //set bottun color to blue
-    setBottunColor(bottunNum, 'blue')
-    //wait 2 secs
+    setElevatorsData(prevData => (prevData.map(data =>
+      data.key === elevatorId?{...data, 
+      color:'green'
+      }: 
+      data )))
+    setBottunColor(floorIndex, 'arrived')
+
+    handleClockAction(floorIndex,elevatorId,'reset',{opacity: 0})
+    //wait 2 secs before choose what is the next elevator mission
     setTimeout(() => {
-      //in case there is an floor that wait for elevator
+      //in case there is an floor that wait for elevator in the pending queue go to that floor
       if (optionalFLoorTo !== undefined) {
-        console.log("arrived wer have mre job")
-        setBottunColor(bottunNum,'red')
+        setBottunColor(floorIndex,'waiting')
         setElevatorsData(prevData => (prevData.map(data =>
           data.key === elevatorId?{...data, 
           handleElevetorArrived: handleElevetorArrived(data.key ,optionalFLoorTo),
-          currFloor: bottunNum,
+          currFloor: floorIndex,
           toFloor: optionalFLoorTo,
-          y:-(height - 2)*optionalFLoorTo}: 
+          y:-(height)*optionalFLoorTo,
+          color: 'red'
+          }: 
           data )))
-          setBottunColor(optionalFLoorTo,'red')
-        //just set occupied and wait for reservetion
+          setBottunColor(optionalFLoorTo,'waiting')
+
+        //else change the elevator color to black and wait for any reservation
       }else{
+
         setElevatorsData(prevData => (prevData.map(data =>
             data.key === elevatorId?{...data, 
-            currFloor: bottunNum,
+            currFloor: floorIndex,
             toFloor: -1,
-            occupied: false }: 
+            occupied: false,
+            color:'black'       
+          }: 
             data )))
       }
-      setBottunColor(bottunNum,'green')
+      setBottunColor(floorIndex,'call')
     }, 2000);
   }
   
 }
 
-//choose elevator if not found return undifined
+//choose the colsest elevator, if not exists return undifined
 function chooseTheClosestElevator(toFloor){
-  
     let availableElevators = elevatorsData.filter(elevator => !elevator.occupied)
     if(availableElevators.length === 0){
       return undefined;
@@ -112,39 +140,86 @@ function chooseTheClosestElevator(toFloor){
   return closestElevator
 }
 
+function handleClockAction(floorIndex, elevatorIndex, action, newStyles){
+
+  function setTime(timersArr) {
+    console.log(elevatorIndex ,timersArr)
+
+    return timersArr.map((timer, i) => {
+      if (i === elevatorIndex) {
+        return {
+          ...timer,
+          onChange: action,
+          styles: newStyles
+        };
+      } else {
+        return timer;
+      }
+    });
+  }
+
+  setFloorsData(prevData =>
+      prevData.map(floorData =>
+        {
+          const newData = floorData.index === floorIndex? {
+            ...floorData, 
+            timeArr: setTime(floorData.timeArr)
+          }:floorData 
+          if(floorData.index === floorIndex){
+            
+            console.log("here ",newData)
+          }
+          return newData
+        }
+     
+    ))
+}
 
 //when a floor want elevator reservation
  function handleElevatorReservation(floorIndex) {
-    //check if there was a reservation
-    if (floorsData.find(floor => floor.index === floorIndex).button.color !== 'green') {
-      console.log("here")
-      return; // Do nothing if the button is red or waiting
-    }
+
+    
+    
+
     //if all the elevators are full put the floor on pending queue
     let elevator;
     if(size() > 0 || (elevator = chooseTheClosestElevator(floorIndex)) === undefined){
       enqueue(floorIndex)  
-      setBottunColor(floorIndex,'red')
+      setBottunColor(floorIndex,'waiting')
+
   //else have elevator change y value and go there
     }else{
       const elevatorNumber = elevator.key
 
-      //stay on the floor
+
+
+      //if there is elevatoe in the floor just say the elevator arrived
       if(elevator.currFloor === floorIndex){
-        setBottunColor(floorIndex,'blue')
-        setTimeout(() => {setBottunColor(floorIndex,'green')},2000)
+        setBottunColor(floorIndex,'arrived')
+        setTimeout(() => {setBottunColor(floorIndex,'call')},2000)
       }
+      
+      //move the elevator to the floor
       else{
-        setBottunColor(floorIndex,'red')
+        handleClockAction(floorIndex,elevatorNumber,'start',{opacity: 1})
+        setBottunColor(floorIndex,'waiting')
+
         setElevatorsData(prevData => (prevData.map(data =>
           {
             const oldFloor = data.currFloor
-            return data.key === elevatorNumber?{...data, 
+  
+            return data.key === elevatorNumber?
+            {
+              ...data, 
               handleElevetorArrived: handleElevetorArrived(data.key ,floorIndex),
               currFloor:oldFloor,
               toFloor: floorIndex,
               occupied: true, 
-              y:-(height - 2)*floorIndex}: data 
+              color: 'red',
+              y:-(height)*floorIndex,
+            
+            }: data 
+              
           })))
       }
     }
@@ -158,23 +233,31 @@ function chooseTheClosestElevator(toFloor){
         squareRef={squareRef}
         key={floorData.key}
         index={floorData.index}
-        button={floorData.button}
+        buttonStatus={floorData.buttonStatus}
         handleElevatorReservation={handleElevatorReservation}
+        timesData = {floorData.timeArr}
       />
     ));
   };
+  console.log(width)
+  return (
+    <div className='main'>
+      <div className="board">
+        {createBoard2()}
+        <div className='elevators-container' style={{width: `${width*columns}px`,height: `${height*rows}px`}}>
 
-  
-  return (<div className="board">
-      {createBoard2()}
-      {elevatorsData.map(data => (
-      <Elevetor
-        key={data.key}
-        y={data.y}
-        style={{backgroundColor: 'green', width: `${width}px`, left: `${data.key*(width-2)}px`}}
-        handleElevetorArrived={handleElevetorArrived(data.key, data.toFloor)}
-      />
-    ))}   
+        {elevatorsData.map(data => (
+        <Elevetor
+          key={data.key}
+          y={data.y}
+          color = {data.color}
+          style={{ width: `${width}px`, height: `${height}px`}}
+          handleElevetorArrived={handleElevetorArrived(data.key, data.toFloor)}
+          
+        />
+      ))} 
+      </div>
+    </div>
   </div>);
   
 };

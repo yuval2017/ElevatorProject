@@ -1,0 +1,16 @@
+.elevator{
+  /* position: absolute; */
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 14px;
+  bottom: 0;
+  padding-top: 4px;
+ 
+}
+.elevator-image {
+  z-index: 2000;
+  display: block;
+  width: 23px;
+}

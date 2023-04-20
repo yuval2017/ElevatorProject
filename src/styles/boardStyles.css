@@ -1,103 +1,39 @@
 /* src/components/Board.css */
-.square {
-  width: 80px;
-  height: 50px;
-  border: 0.1px solid gray;
-  box-sizing: border-box;
-  background-color: white;
-  margin-left: -2px;
-  margin-top: -2px;
+.main{
+  background-color:  rgb(228, 225, 225);
+  padding-right: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 40px;
 }
-
 .board {
+
+  font-family: Roboto, Arial;
   display: flex;
   position: relative;
-  flex-direction: column;
-  background-color: aqua;
-  
-}
-
-.row-number {
-  font-weight: bold;
-  width: 100px;
-  text-align: right;
-  margin-right: 40px;
-  font-size: 12px;
-  white-space: nowrap;
-
-}
-.elavator-button{
-  margin-left: 20px;
-  font-size: 12px;
-  padding: 4px 15px 4px 15px;
-  border-radius: 3px;
-  border: none;
-  color: white;
-}
-.d-flex{
   align-items: center;
-}
-
-
-
-.square {
-  width: 80px;
-  height: 50px;
-  border: 0.1px solid gray;
-  box-sizing: border-box;
-  margin-left: -2px;
-  margin-top: -2px;
-}
-
-.board {
-  display: flex;
   flex-direction: column;
+  justify-content: center;
 }
-
-.row-number {
-  font-weight: bold;
-  width: 100px;
-  text-align: right;
-  margin-right: 40px;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-
-.elevator-button-waiting,
-.elevator-button-call {
-  margin-left: 20px;
-  font-size: 12px;
-  padding: 4px 15px 4px 15px;
-  border-radius: 3px;
-  border: none;
-  color: white;
-}
-.elevator-button-waiting{
-  background-color: red;
-}
-.elevator-button-call{
-  background-color: green;
-}
-.elevator-button-arrived {
-  margin-left: 20px;
-  font-size: 12px;
-  padding: 4px 15px 4px 15px;
-  border-radius: 3px;
-  border: none;
-  color: white;
-  background-color: blue;
-}
-
-
-.d-flex {
-  align-items: center;
-}
-
-.board .moving-object{
+.elevators-container{
   position: absolute;
-  bottom: 30;
-  right: 30;
-  z-index: 100;
-
+  display: flex;
+  justify-content: center;
+  gap: 23px;
+  align-items: flex-end;
+  padding-bottom: 3px;
+  padding-left: 5px ;
+  padding-right: 20px;
+  margin-left: 35px;
+  background-color: aqua;
 }
+
+
+
+  
+
+
+
+
+

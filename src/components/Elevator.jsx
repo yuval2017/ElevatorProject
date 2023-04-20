@@ -1,43 +1,37 @@
 import { animated, useSpring } from 'react-spring';
+import '../styles/elevatorStyles.css'
 
-import '../styles/movingObjectStyles.css'
 
-
-const Elevator = ({ y , style, handleElevetorArrived}) => {
-  // const spring = useSpring({
-  //   to: { y },
-  //   config: {
-  //     duration: 3000, // set a longer duration for the animation
-  //     tension: 70, // reduce the tension value to make the animation slower
-  //     friction: 50, // increase the friction value to make the animation smoother
-  //     onRest: () => {
-  //       console.log("arrived")
-  //     },
-  //   },
-  //   //config: {mass: 1, tension: 170, friction: 500, onRest: handleElevetorArrived() },
-  // });
+const Elevator = ({ y , style, handleElevetorArrived, color}) => {
 
 
   const spring = useSpring({
     to: { y },
     config: {
-      duration: 7000,
-      tension: 70,
-      friction: 50,
+      clamp:true,
+      // duration: 7000, // set a longer duration for the animation
+      mass: 20, // increase the mass value to make the animation slower and more deliberate
+      tension: 2, // reduce the tension value to make the animation slower and smoother
+      friction: 2, // increase the friction value to make the animation smoother
     },
    onRest: () => {
+    
     handleElevetorArrived();
   },
   });
   
   return (
+
+
     <animated.div
-      className="moving-object"
-      style={{
-        ...style,
-        transform: spring.y.to(y => `translateY(${y}px)`),        
-      }}
-    />
+    className="elevator"
+    style={{
+      ...style,
+      transform: spring.y.to(y => `translateY(${y}px)`),        
+    }}>
+      {/* <div className='image-container'></div> */}
+      <img className="elevator-image" src={`./icons8-elevator-${color}.svg`} alt = "Woops"></img>
+    </animated.div>
   );
 };
 

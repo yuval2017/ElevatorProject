@@ -1,30 +1,44 @@
-import React, {useRef,useEffect} from "react";
+import '../styles/floorStyles.css'
+import React from "react"
+import CountDownTimer from './CountTimer'
 
-const Floor = ({  index, button, handleElevatorReservation, columns, squareRef }) => {
+const Floor = ({  index, buttonStatus, handleElevatorReservation, columns, squareRef, timesData }) => {
 
   //the floor left text
   const floorText = `${index === 0 ? "Ground Floor" : index === 1 ? "1st" : index === 2 ? "2nd" : index === 3 ? "3nd" : `${index}th`}`
+  const {buttonClass, buttonText} = buttonStatus === 'waiting' ? {buttonClass:"elevator-button-waiting", buttonText: 'Waiting'} : 
+                                      buttonStatus === 'call'?{buttonClass:"elevator-button-call",buttonText: 'Call'}:
+                                      buttonStatus === 'arrived'?{buttonClass:"elevator-button-arrived",buttonText: 'Arrived'}:{};
+
+
 
 
 
   return (
-    <div key={`row-${index}`} className="d-flex">
-      <div className="row-number me-2">
+    <div key={`row-${index}`} className="floor">
+      <div className="floor-number">
        {floorText}
       </div>
-      {Array.from({ length: columns }, (_, j) => (
-        <div key={`cell-${index}-${j}`} className="square p-2 " ref={index === 0 && j === 0 ? squareRef : null} />
-      ))}
+      <div className="floor-squares">
+        {Array.from({ length: columns }, (_, j) => (
+          <div key={`cell-${index}-${j}`} className="square " ref={index === 0 && j === 0 ? squareRef : null}>
+            <CountDownTimer 
+            onChange={timesData[j].onChange} 
+            styles = {timesData[j].styles}
+            />
+          </div>
+        ))}
+      </div>
       <button
         type="button"
         id={`button-${index}`}
-        disabled={false}
-        className="elevator-button-arrived"
-        style={{ backgroundColor: button.color }}
+        disabled={buttonStatus === 'waiting' || buttonStatus === 'arrived'}
+        className= {buttonClass}
         onClick={() => handleElevatorReservation(index)}
       >
-        Call
+        {buttonText}
       </button>
+   
     </div>
   );
 };

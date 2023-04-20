@@ -1,0 +1,9 @@
+.timer{
+  font-weight: 500;
+  width: 8px;
+  height: 5px;
+  font-size: 10px;
+  white-space: nowrap;
+  transition: opacity 1s;
+}
+
