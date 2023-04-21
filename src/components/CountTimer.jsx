@@ -1,20 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/timerStyles.css'
+import { TIMER } from '../constants/constants';
 
 
-const CountDownTimer = ({onChange, styles}) => {
+function CountDownTimer  ({onChange, styles}) {
   const [time, setTime] = useState(0);
   const intervalRef = useRef();
 
 
   useEffect(() => {
-    if(onChange === 'start'){
+    if(onChange === TIMER.START){
       handleStart()
     }
-    else if(onChange === 'stop'){
+    else if(onChange === TIMER.STOP){
       handleStop()
     }
-    else if(onChange === 'reset'){
+    else if(onChange === TIMER.RESET){
       handleReset()
     }
   }, [onChange]);

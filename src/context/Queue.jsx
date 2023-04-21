@@ -33,9 +33,10 @@ const QueueProvider = ({ children }) => {
   const size = () => {
     return queue.length;
   };
+  const value = { enqueue, dequeue, peek, size }
 
   return (
-    <QueueContext.Provider value={{ enqueue, dequeue, peek, size }}>
+    <QueueContext.Provider value={value}>
       {children}
     </QueueContext.Provider>
   );

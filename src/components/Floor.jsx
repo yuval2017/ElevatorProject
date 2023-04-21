@@ -1,18 +1,17 @@
 import '../styles/floorStyles.css'
 import React from "react"
 import CountDownTimer from './CountTimer'
+import { BUTTON_STATUS } from '../constants/constants';
 
-const Floor = ({  index, buttonStatus, handleElevatorReservation, columns, squareRef, timesData }) => {
+function Floor ({  index, buttonStatus, handleElevatorReservation, columns, squareRef, timesData })  {
 
-  //the floor left text
+  //set the floor name
   const floorText = `${index === 0 ? "Ground Floor" : index === 1 ? "1st" : index === 2 ? "2nd" : index === 3 ? "3nd" : `${index}th`}`
-  const {buttonClass, buttonText} = buttonStatus === 'waiting' ? {buttonClass:"elevator-button-waiting", buttonText: 'Waiting'} : 
-                                      buttonStatus === 'call'?{buttonClass:"elevator-button-call",buttonText: 'Call'}:
-                                      buttonStatus === 'arrived'?{buttonClass:"elevator-button-arrived",buttonText: 'Arrived'}:{};
 
-
-
-
+    //the floor Number in text, the css class for the button and the button text.
+  const {buttonClass, buttonText} = buttonStatus === BUTTON_STATUS.WAITING ? {buttonClass:"elevator-button-waiting", buttonText: 'Waiting'} : 
+                                      buttonStatus === BUTTON_STATUS.CALL?{buttonClass:"elevator-button-call",buttonText: 'Call'}:
+                                      buttonStatus === BUTTON_STATUS.ARRIVED?{buttonClass:"elevator-button-arrived",buttonText: 'Arrived'}:{};
 
   return (
     <div key={`row-${index}`} className="floor">

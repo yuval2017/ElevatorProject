@@ -1,262 +1,115 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import '../styles/boardStyles.css';
-import Elevetor from './Elevator'
 import { useQueue } from '../context/Queue';
-import Floor from './Floor';
+import '../constants/constants'
+import { BUTTON_STATUS, TIMER, ELEVATOR_COLORS } from '../constants/constants';
+import { useElevatorController} from '../context/elevatorController';
+import { useFloorController } from '../context/floorController';
 
 
-const Board = ({ rows, columns }) => {
-  const squareRef = useRef(null);
-  const [squareData, setSquareData] = useState({})
-  const [floorsData, setFloorsData] = useState(createFloorsData())
-  const [elevatorsData, setElevatorsData] = useState([]);
-  const { enqueue, size , dequeue} = useQueue();
+
+function Board ({ rows, columns }) {
+
+  const {handleClockAction, setBottunColor, createFloors} = useFloorController()
+
+  const { enqueue , dequeue} = useQueue();
+
+  //init elevator controller
+  const {
+    checkForAvailableElevator, 
+    changeElevetorStatus, 
+    changeElevatorColor,
+    createElevetorsData} = useElevatorController();
 
 
 //that data to change the elevator position, width,hight dynamicly
-const width = squareData.width 
-const height = squareData.height 
 
-
-
-
-
-//create floors data
-function createFloorsData() {
-  const ans = [];
-  for (let i = 0; i < rows; i++) {
-    const timesArr = new Array(columns).fill({onChange: 'stop', styles: {opacity: 0}}); 
-    ans.push({
-      key: `floor-${i}`,
-      index: rows - i - 1,
-      buttonStatus: 'call',
-      timeArr: timesArr
-    });
-  }
-  return ans;
-}
-
-
-
-
-  useEffect(() => {
-    if (squareRef.current) {
-      
-      const { width, height, left, bottom} = squareRef.current.getBoundingClientRect();
-      setSquareData({width, height, left, bottom})
-
-      initElevatorDta(width)
-    }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  
-  function initElevatorDta(width){
-    const elevators = [];
-    for (let i = 0; i < columns; i++) {
-      elevators.push({
-        key: i,
-        y: 0,
-        style: { backgroundColor: 'green', width: `${width}px`, left: `${i*(width)}px`},
-        handleElevetorArrived: handleElevetorArrived(i, 0),
-        occupied:false,
-        currFloor: 0,
-        toFloor: -1,
-        color: 'black'
-      });
-    }
-    setElevatorsData(elevators);
-  }
-
-//set bottun color 
-function setBottunColor(bottunIndex, newStatus){
-  setFloorsData(prevData =>
-    prevData.map(floorData => floorData.index===bottunIndex?{...floorData, buttonStatus: newStatus}:floorData))
-}
 
 function handleElevetorArrived(elevatorId, floorIndex){
   return () => {
     
-    //make it the elivator color to green, and bottun to the new style
-    const optionalFLoorTo = dequeue()
-    setElevatorsData(prevData => (prevData.map(data =>
-      data.key === elevatorId?{...data, 
-      color:'green'
-      }: 
-      data )))
-    setBottunColor(floorIndex, 'arrived')
+    //alevator arrived change the color
+    changeElevatorColor(elevatorId,ELEVATOR_COLORS.GREEN)
 
-    handleClockAction(floorIndex,elevatorId,'reset',{opacity: 0})
+    //set button to arrived
+    setBottunColor(floorIndex, BUTTON_STATUS.ARRIVED)
+
+    //reset the time and hide clock
+    handleClockAction(floorIndex,elevatorId,TIMER.RESET)
+
+     //make it the elevator color to green, and bottun to the new style
+     const optionalFLoorTo = dequeue()
+
     //wait 2 secs before choose what is the next elevator mission
     setTimeout(() => {
+
       //in case there is an floor that wait for elevator in the pending queue go to that floor
       if (optionalFLoorTo !== undefined) {
-        setBottunColor(floorIndex,'waiting')
-        setElevatorsData(prevData => (prevData.map(data =>
-          data.key === elevatorId?{...data, 
-          handleElevetorArrived: handleElevetorArrived(data.key ,optionalFLoorTo),
-          currFloor: floorIndex,
-          toFloor: optionalFLoorTo,
-          y:-(height)*optionalFLoorTo,
-          color: 'red'
-          }: 
-          data )))
-          setBottunColor(optionalFLoorTo,'waiting')
-
-        //else change the elevator color to black and wait for any reservation
+        //send to elevator to this floor
+        sendElevetorToFloor(elevatorId, floorIndex, optionalFLoorTo)
+      //the elevator ready for more "missions"
       }else{
-
-        setElevatorsData(prevData => (prevData.map(data =>
-            data.key === elevatorId?{...data, 
-            currFloor: floorIndex,
-            toFloor: -1,
-            occupied: false,
-            color:'black'       
-          }: 
-            data )))
+        changeElevetorStatus(floorIndex, -1, elevatorId, () => {}, ELEVATOR_COLORS.BLACK)
       }
-      setBottunColor(floorIndex,'call')
+      setBottunColor(floorIndex,BUTTON_STATUS.CALL)
     }, 2000);
   }
   
 }
 
-//choose the colsest elevator, if not exists return undifined
-function chooseTheClosestElevator(toFloor){
-    let availableElevators = elevatorsData.filter(elevator => !elevator.occupied)
-    if(availableElevators.length === 0){
-      return undefined;
-    }
-    let closestElevator = availableElevators[0];
-    let closestDistance = Math.abs(availableElevators[0].currFloor - toFloor);
-
-    for (const object of availableElevators) {
-      const distance = Math.abs(object.currFloor - toFloor);
-
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestElevator = object;
-      }
-  }
-  return closestElevator
-}
-
-function handleClockAction(floorIndex, elevatorIndex, action, newStyles){
-
-  function setTime(timersArr) {
-    console.log(elevatorIndex ,timersArr)
-
-    return timersArr.map((timer, i) => {
-      if (i === elevatorIndex) {
-        return {
-          ...timer,
-          onChange: action,
-          styles: newStyles
-        };
-      } else {
-        return timer;
-      }
-    });
-  }
-
-  setFloorsData(prevData =>
-      prevData.map(floorData =>
-        {
-          const newData = floorData.index === floorIndex? {
-            ...floorData, 
-            timeArr: setTime(floorData.timeArr)
-          }:floorData 
-          if(floorData.index === floorIndex){
-            
-            console.log("here ",newData)
-          }
-          return newData
-        }
-     
-    ))
-}
-
 //when a floor want elevator reservation
- function handleElevatorReservation(floorIndex) {
+function handleElevatorReservation(floorIndex) {
+  //if the elevator controller dont have Available elevator ...
+  let elevator;
+  if((elevator = checkForAvailableElevator(floorIndex)) === undefined){
+    enqueue(floorIndex)  
+    setBottunColor(floorIndex, BUTTON_STATUS.WAITING)
 
-    
-    
+//else have elevator change y value and go there
+  }else{
+    //elevator index
+    const elevatorNumber = elevator.key
 
-    //if all the elevators are full put the floor on pending queue
-    let elevator;
-    if(size() > 0 || (elevator = chooseTheClosestElevator(floorIndex)) === undefined){
-      enqueue(floorIndex)  
-      setBottunColor(floorIndex,'waiting')
-
-  //else have elevator change y value and go there
-    }else{
-      const elevatorNumber = elevator.key
-
-
-
-      //if there is elevatoe in the floor just say the elevator arrived
-      if(elevator.currFloor === floorIndex){
-        setBottunColor(floorIndex,'arrived')
-        setTimeout(() => {setBottunColor(floorIndex,'call')},2000)
-      }
-      
-      //move the elevator to the floor
-      else{
-        handleClockAction(floorIndex,elevatorNumber,'start',{opacity: 1})
-        setBottunColor(floorIndex,'waiting')
-
-        setElevatorsData(prevData => (prevData.map(data =>
-          {
-            const oldFloor = data.currFloor
-  
-            return data.key === elevatorNumber?
-            {
-              ...data, 
-              handleElevetorArrived: handleElevetorArrived(data.key ,floorIndex),
-              currFloor:oldFloor,
-              toFloor: floorIndex,
-              occupied: true, 
-              color: 'red',
-              y:-(height)*floorIndex,
-            
-            }: data 
-              
-          })))
-      }
+    //if there is elevator in the floor elevator arrived
+    if(elevator.currFloor === floorIndex) {
+      setBottunColor(floorIndex,BUTTON_STATUS.ARRIVED)
+      changeElevatorColor(elevatorNumber, ELEVATOR_COLORS.GREEN)
+      setTimeout(() => 
+      {
+        setBottunColor(floorIndex,BUTTON_STATUS.CALL)
+        changeElevatorColor(elevatorNumber, ELEVATOR_COLORS.BLACK)
+      },2000)
     }
-    
-  }
 
-  const createBoard2 = () => {
-    return floorsData.map((floorData) => (
-      <Floor
-        columns={columns}
-        squareRef={squareRef}
-        key={floorData.key}
-        index={floorData.index}
-        buttonStatus={floorData.buttonStatus}
-        handleElevatorReservation={handleElevatorReservation}
-        timesData = {floorData.timeArr}
-      />
-    ));
-  };
-  console.log(width)
+    else{
+      //set the floor bottun color
+      setBottunColor(floorIndex, BUTTON_STATUS.WAITING)
+
+      //send the elevator to this floor
+      sendElevetorToFloor(elevatorNumber, elevator.currFloor, floorIndex)
+
+    }
+  }
+}
+
+function sendElevetorToFloor(elevatorId, currFLoor, toFloor){
+  //start the square timer
+  handleClockAction(toFloor, elevatorId,TIMER.START)
+
+  // //create clouser for the elevator
+  const elevatorArrivedClouser = handleElevetorArrived(elevatorId ,toFloor)
+
+  // //use elevatorController to move the elevator to the floor
+  changeElevetorStatus(currFLoor, toFloor, elevatorId, elevatorArrivedClouser, ELEVATOR_COLORS.RED)
+}
+
+
+
   return (
     <div className='main'>
       <div className="board">
-        {createBoard2()}
-        <div className='elevators-container' style={{width: `${width*columns}px`,height: `${height*rows}px`}}>
-
-        {elevatorsData.map(data => (
-        <Elevetor
-          key={data.key}
-          y={data.y}
-          color = {data.color}
-          style={{ width: `${width}px`, height: `${height}px`}}
-          handleElevetorArrived={handleElevetorArrived(data.key, data.toFloor)}
-          
-        />
-      ))} 
-      </div>
+        {createFloors(handleElevatorReservation)}
+        {createElevetorsData(handleElevetorArrived, columns, rows)}
     </div>
   </div>);
   
