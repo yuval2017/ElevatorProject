@@ -29,7 +29,6 @@ const FloorControllerProvider = ({ children, columns, rows }) => {
     return ans;
   }
 
-
   //change the clock status from running/stop/reset with the visibility
   function handleClockAction(floorIndex, elevatorIndex, { onChange: action, styles: newStyles }){
     //help function inside a function
@@ -63,14 +62,8 @@ const FloorControllerProvider = ({ children, columns, rows }) => {
     ))
   }
 
-  //set bottun color 
-  function setBottunColor(floorIndex, newStatus){
-    setFloorsData(prevData =>
-      prevData.map(floorData => floorData.index === floorIndex?{...floorData, buttonStatus: newStatus}:floorData))
-    }
 
-
-  function createFloors(floorOnClickHandler) {
+    function createFloors(handleButtonClick) {
       return floorsData.map((floorData) => (
         <Floor
           columns={columns}
@@ -78,16 +71,27 @@ const FloorControllerProvider = ({ children, columns, rows }) => {
           key={floorData.key}
           index={floorData.index}
           buttonStatus={floorData.buttonStatus}
-          handleElevatorReservation={floorOnClickHandler}
+          handleElevatorReservation={handleButtonClick}
           timesData = {floorData.timeArr}
         />
       ));
     };
+      //set bottun color 
+function setButtonStatus(floorIndex, newStatus){
+  setFloorsData(prevData =>
+    prevData.map(floorData => floorData.index === floorIndex?{...floorData, buttonStatus: newStatus}:floorData))
+  }
 
-  const value = {createFloorsData, 
+
+
+  const value = {
+                  createFloorsData,
+                  setFloorsData,
+                  floorsData,
+                  setButtonStatus,
                   handleClockAction,
-                setBottunColor,
-                createFloors}
+                  createFloors
+                }
 
 
   return (

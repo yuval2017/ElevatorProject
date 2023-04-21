@@ -1,4 +1,3 @@
-import React from 'react';
 import '../styles/boardStyles.css';
 import { useQueue } from '../context/Queue';
 import '../constants/constants'
@@ -9,11 +8,12 @@ import { useFloorController } from '../context/floorController';
 
 
 function Board ({ rows, columns }) {
-
-  const {handleClockAction, setBottunColor, createFloors} = useFloorController()
+  const {handleClockAction, createFloors, setButtonStatus} = useFloorController()
+  
 
   const { enqueue , dequeue} = useQueue();
 
+ 
   //init elevator controller
   const {
     checkForAvailableElevator, 
@@ -22,70 +22,75 @@ function Board ({ rows, columns }) {
     createElevetorsData} = useElevatorController();
 
 
-//that data to change the elevator position, width,hight dynamicly
 
 
+/**
+ * handle the event when elevator arrived to the destination
+ * @param {number} elevatorId - the curr elevetor index in the columns
+ * @param {number} floorIndex - the current flor index in the rows
+ * @returns 
+ */
 function handleElevetorArrived(elevatorId, floorIndex){
   return () => {
     
-    //alevator arrived change the color
+    //change elevator color to green
     changeElevatorColor(elevatorId,ELEVATOR_COLORS.GREEN)
 
-    //set button to arrived
-    setBottunColor(floorIndex, BUTTON_STATUS.ARRIVED)
+    //change button on the floot to arrived
+    setButtonStatus(floorIndex, BUTTON_STATUS.ARRIVED)
 
-    //reset the time and hide clock
+    //reset and hide the timer on the square
     handleClockAction(floorIndex,elevatorId,TIMER.RESET)
 
-     //make it the elevator color to green, and bottun to the new style
+     //check if there is a floor in pending queue
      const optionalFLoorTo = dequeue()
 
-    //wait 2 secs before choose what is the next elevator mission
+    //wait 2 sec
     setTimeout(() => {
-
-      //in case there is an floor that wait for elevator in the pending queue go to that floor
+      //if there is floor waiting for elevator send the elevator to that floor
       if (optionalFLoorTo !== undefined) {
-        //send to elevator to this floor
         sendElevetorToFloor(elevatorId, floorIndex, optionalFLoorTo)
-      //the elevator ready for more "missions"
       }else{
+        //bring back the color to black
         changeElevetorStatus(floorIndex, -1, elevatorId, () => {}, ELEVATOR_COLORS.BLACK)
       }
-      setBottunColor(floorIndex,BUTTON_STATUS.CALL)
+      setButtonStatus(floorIndex,BUTTON_STATUS.CALL)
     }, 2000);
   }
   
 }
 
-//when a floor want elevator reservation
+/**
+ * handle when calling to an alevator
+ * @param {number} floorIndex - the index of the floor that the calling from
+ */
 function handleElevatorReservation(floorIndex) {
   //if the elevator controller dont have Available elevator ...
   let elevator;
   if((elevator = checkForAvailableElevator(floorIndex)) === undefined){
+    //push the floor to queue
     enqueue(floorIndex)  
-    setBottunColor(floorIndex, BUTTON_STATUS.WAITING)
+    setButtonStatus(floorIndex, BUTTON_STATUS.WAITING)
 
-//else have elevator change y value and go there
   }else{
     //elevator index
     const elevatorNumber = elevator.key
 
-    //if there is elevator in the floor elevator arrived
+    //if the elevator in the same floor stay for 2 sec
     if(elevator.currFloor === floorIndex) {
-      setBottunColor(floorIndex,BUTTON_STATUS.ARRIVED)
+      setButtonStatus(floorIndex,BUTTON_STATUS.ARRIVED)
       changeElevatorColor(elevatorNumber, ELEVATOR_COLORS.GREEN)
       setTimeout(() => 
       {
-        setBottunColor(floorIndex,BUTTON_STATUS.CALL)
+        setButtonStatus(floorIndex,BUTTON_STATUS.CALL)
         changeElevatorColor(elevatorNumber, ELEVATOR_COLORS.BLACK)
       },2000)
     }
 
     else{
-      //set the floor bottun color
-      setBottunColor(floorIndex, BUTTON_STATUS.WAITING)
+      //change bottun styles
+      setButtonStatus(floorIndex, BUTTON_STATUS.WAITING)
 
-      //send the elevator to this floor
       sendElevetorToFloor(elevatorNumber, elevator.currFloor, floorIndex)
 
     }
@@ -93,18 +98,12 @@ function handleElevatorReservation(floorIndex) {
 }
 
 function sendElevetorToFloor(elevatorId, currFLoor, toFloor){
-  //start the square timer
   handleClockAction(toFloor, elevatorId,TIMER.START)
-
-  // //create clouser for the elevator
   const elevatorArrivedClouser = handleElevetorArrived(elevatorId ,toFloor)
-
-  // //use elevatorController to move the elevator to the floor
   changeElevetorStatus(currFLoor, toFloor, elevatorId, elevatorArrivedClouser, ELEVATOR_COLORS.RED)
 }
 
-
-
+  
   return (
     <div className='main'>
       <div className="board">

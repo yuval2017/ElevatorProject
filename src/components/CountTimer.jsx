@@ -4,18 +4,19 @@ import { TIMER } from '../constants/constants';
 
 
 function CountDownTimer  ({onChange, styles}) {
+
   const [time, setTime] = useState(0);
   const intervalRef = useRef();
 
 
   useEffect(() => {
-    if(onChange === TIMER.START){
+    if(onChange === TIMER.START.onChange){
       handleStart()
     }
-    else if(onChange === TIMER.STOP){
+    else if(onChange === TIMER.STOP.onChange){
       handleStop()
     }
-    else if(onChange === TIMER.RESET){
+    else if(onChange === TIMER.RESET.onChange){
       handleReset()
     }
   }, [onChange]);
