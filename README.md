@@ -38,10 +38,10 @@ The project directory is structured as follows:
   - public
     - index.html
 
-## Configuration
+# Configuration
 The config.jsx file defines the number of elevators and the number of floors for the simulation.
 
-## Controllers
+# Controllers
 There are two controller components that manage the elevator and floor functionality:
 
 ## elevatorController.jsx
