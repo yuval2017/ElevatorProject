@@ -38,32 +38,32 @@ The project directory is structured as follows:
   - public
     - index.html
 
-# Configuration
+ `Configuration`
 The config.jsx file defines the number of elevators and the number of floors for the simulation.
 
-# Controllers
+ `Controllers`
 There are two controller components that manage the elevator and floor functionality:
 
-## elevatorController.jsx
+ `elevatorController.jsx`
 This component controls the elevators in the simulation. It brings an available elevator to the requested floor if there is one, and handles the animation of moving the elevators using the react-spring library.
 
-## floorController.jsx
+ `floorController.jsx`
 This component handles the buttons and time slots for each floor. When a button is pressed, the nearest elevator is called to the floor. If there are no available elevators, the floor is added to a queue.
 
-## Board
+ `Board`
 The Board.jsx component serves as a facade between the elevator and floor controllers.
 
-## Elevator
+ `Elevator`
 The Elevator.jsx component is responsible for moving between floors. When an elevator is called, it turns red. When it arrives at a requested floor, it plays a sound, waits for 2 seconds, and then either goes to the next requested floor or waits for new calls.
 
 
-## Floor
+ `Floor`
 The Floor.jsx component allows users to call elevators and displays the estimated time for the nearest elevator to reach the floor. When an elevator becomes available, it will automatically reach the floor that has been waiting the longest.
 
-## Styles
+ `Styles`
 The styles folder contains CSS files for styling the different components.
 
-# Resources
+## Resources
 - react-spring library documentation: https://www.react-spring.io/
 - Bootstrap documentation: https://getbootstrap.com/docs/5.1/getting-started/introduction/
 - React documentation: https://reactjs.org/docs/getting-started.html
