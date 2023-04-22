@@ -14,7 +14,7 @@ function Floor ({  index, buttonStatus, handleElevatorReservation, columns, squa
                                       buttonStatus === BUTTON_STATUS.ARRIVED?{buttonClass:"elevator-button-arrived",buttonText: 'Arrived'}:{};
 
   return (
-    <div key={`row-${index}`} className="floor">
+    <div id = {"content"} key={`row-${index}`} className="floor">
       <div className="floor-number">
        {floorText}
       </div>

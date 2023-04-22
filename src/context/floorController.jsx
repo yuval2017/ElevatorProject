@@ -29,9 +29,14 @@ const FloorControllerProvider = ({ children, columns, rows }) => {
     return ans;
   }
 
-  //change the clock status from running/stop/reset with the visibility
+  /**
+   * Hides or turns off the hours in the slot
+   * @param {number} floorIndex - Row number
+   * @param {number} elevatorIndex - Column number
+   * @param {string, opacity} param2 - the action on the time in the square (show/hide)
+   */
   function handleClockAction(floorIndex, elevatorIndex, { onChange: action, styles: newStyles }){
-    //help function inside a function
+    //help function inside a function, set the square time
     function setTime(timersArr) {
       return timersArr.map((timer, i) => {
         if (i === elevatorIndex) {
@@ -46,39 +51,47 @@ const FloorControllerProvider = ({ children, columns, rows }) => {
       });
     }
 
-  //set the flloor data to change the clocks
-  setFloorsData(prevData =>
-      prevData.map(floorData =>
-        {
-          const newData = floorData.index === floorIndex? {
-            ...floorData, 
-            timeArr: setTime(floorData.timeArr)
-          }:floorData 
-          if(floorData.index === floorIndex){
+    //set the flloor data to change the clocks
+    setFloorsData(prevData =>
+        prevData.map(floorData =>
+          {
+            const newData = floorData.index === floorIndex? {
+              ...floorData, 
+              timeArr: setTime(floorData.timeArr)
+            }:floorData 
+            if(floorData.index === floorIndex){
+            }
+            return newData
           }
-          return newData
-        }
-      
-    ))
+      ))
   }
 
-
-    function createFloors(handleButtonClick) {
-      return floorsData.map((floorData) => (
-        <Floor
-          columns={columns}
-          squareRef={squareRef}
-          key={floorData.key}
-          index={floorData.index}
-          buttonStatus={floorData.buttonStatus}
-          handleElevatorReservation={handleButtonClick}
-          timesData = {floorData.timeArr}
-        />
-      ));
-    };
-      //set bottun color 
-function setButtonStatus(floorIndex, newStatus){
-  setFloorsData(prevData =>
+  /**
+   * 
+   * @param {function} handleButtonClick - Function that handle's an elevator call 
+   * @returns the elevators HTML code
+   */
+  function createFloors(handleButtonClick) {
+    return floorsData.map((floorData) => (
+      <Floor
+        columns={columns}
+        squareRef={squareRef}
+        key={floorData.key}
+        index={floorData.index}
+        buttonStatus={floorData.buttonStatus}
+        handleElevatorReservation={handleButtonClick}
+        timesData = {floorData.timeArr}
+      />
+    ));
+  };
+  
+  /**
+   * 
+   * @param {number} floorIndex - The button at the floor
+   * @param {number} newStatus - To handle the new style of the button
+   */    
+  function setButtonStatus(floorIndex, newStatus){
+    setFloorsData(prevData =>
     prevData.map(floorData => floorData.index === floorIndex?{...floorData, buttonStatus: newStatus}:floorData))
   }
 

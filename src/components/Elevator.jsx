@@ -1,4 +1,4 @@
-import { animated, useSpring } from 'react-spring';
+import { animated, useSpring,  } from 'react-spring';
 import '../styles/elevatorStyles.css'
 import { useAudioPlayer } from '../context/playMusic';
 import { useEffect } from 'react';
@@ -6,7 +6,8 @@ import { ELEVATOR_COLORS } from '../constants/constants';
 
 function Elevator ({ y , style, handleElevetorArrived, color, dist})  {
   const { playAudio } = useAudioPlayer();
-  
+
+
 
 useEffect(() => {
   if (color === ELEVATOR_COLORS.GREEN) {
@@ -20,19 +21,25 @@ useEffect(() => {
     
     config: {
       clamp:true,
-      // duration: 7000, // set a longer duration for the animation
+      //duration: 4000*dist, // set a longer duration for the animation
       //mass: 20, // increase the mass value to make the animation slower and more deliberate
-      tension: 20/dist, // reduce the tension value to make the animation slower and smoother
-      friction: 10, // increase the friction value to make the animation smoother
-      mass:200
-    
+      tension: 100*dist, // reduce the tension value to make the animation slower and smoother
+      friction: 150*dist, // increase the friction value to make the animation smoother
+  
     },
    onRest: () => {
 
     handleElevetorArrived();
   },
+  
+  onUpdate: ({ y }) => {
+   
+    console.log(`Elevator current position: ${y}`);
+  },
+  
   });
- 
+
+
   return (
 
     <animated.div

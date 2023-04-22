@@ -23,18 +23,17 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
   const width = squareData.width 
   const height = squareData.height 
   
-//initiate data of the elevators
+//initiate thes square and elevators data
   useEffect(() => {
     if (squareRef.current) {
       const squarFef = squareRef.current.getBoundingClientRect();
       setSquareData(squarFef)
-      //elevatorController function to init the elevetors data
       initElevatorDta(width)
     }
      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squareRef]);
 
-  // init the elevators
+
   function initElevatorDta(width) {
     const elevators = [];
     for (let i = 0; i < elevatorsNum; i++) {
@@ -51,7 +50,11 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
     setElevatorsData(elevators);
   }
 
-  //choose the colsest elevator, if not exists return undifined
+  /**
+   * 
+   * @param {number} toFloor - The floor from which a call to the elevator was made
+   * @returns The most closest elevator to the floor
+   */
   function chooseTheClosestElevator(toFloor){
     let availableElevators = elevatorsData.filter(elevator => elevator.color===ELEVATOR_COLORS.BLACK)
     if(availableElevators.length === 0){
@@ -71,6 +74,11 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
     return closestElevator
   }
 
+  /**
+   * Check if there is available elevator
+   * @param {number} floorIndex - The index of the floor
+   * @returns Undefined if there is no elevator, else return an elevator column index
+   */
   function checkForAvailableElevator(floorIndex){
     // if someone waiting to an elevator
     if(size() > 0){
@@ -82,9 +90,15 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
   }
   
 
-
+  /**
+   * 
+   * @param {number} currFloor - The floor where the elevator is.
+   * @param {number} toFloor - The floor to which the elevator should reach.
+   * @param {number} elevatorNumber - Elevator index.
+   * @param {funtion} afterArrivedClouser - The action to be taken after the elevator arrives.
+   * @param {string} color - The color new color of the elevator.
+   */
   function changeElevetorStatus(currFloor,toFloor, elevatorNumber, afterArrivedClouser, color){
-    //if curr floor is -1 thats elevator didnt move..
     setElevatorsData(prevData => (prevData.map(data =>
       {
         return data.key === elevatorNumber?
@@ -100,6 +114,11 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
       })))
   }
 
+  /**
+   * 
+   * @param {number} elevatorId - Elevator index.
+   * @param {string} color - The new color to.
+   */
  function changeElevatorColor(elevatorId, color){
   setElevatorsData(prevData => (prevData.map(data =>
     data.key === elevatorId?{
@@ -110,8 +129,14 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
   }
 
 
-  //create elevator data
-  function createElevetorsData(elevatorHandleClouser, columns, rows){
+  /**
+   * 
+   * @param {*} elevatorHandleClouser - The action to be taken after the elevator arrives.
+   * @param {*} columns - Number of elevators, here it needed to make the clock watch on each square.
+   * @param {*} rows - Number of floors.
+   * @returns Elevators in HTML code
+   */
+  function createElevetorsData(afterArrivedClouser, columns, rows){
     return  <div className='elevators-container' style={{width: `${width*columns}px`,height: `${height*rows}px`}}>
     {elevatorsData.map(data => (
       <AudioPlayerProvider path={audioFilePath} key = {data.key} index={data.key}>
@@ -120,7 +145,7 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
           y={data.y}
           color={data.color}
           style={{ width: `${width}px`, height: `${height}px` }}
-          handleElevetorArrived={elevatorHandleClouser(data.key, data.toFloor)}
+          handleElevetorArrived={afterArrivedClouser(data.key, data.toFloor)}
           dist={data.dist}
         />
       </AudioPlayerProvider>

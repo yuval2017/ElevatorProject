@@ -10,11 +10,15 @@ import { useFloorController } from '../context/floorController';
 function Board ({ rows, columns }) {
   const {handleClockAction, createFloors, setButtonStatus} = useFloorController()
   
-
+  /**
+   * pending queue
+   */
   const { enqueue , dequeue} = useQueue();
 
  
-  //init elevator controller
+  /**
+   * control the elevators
+   */
   const {
     checkForAvailableElevator, 
     changeElevetorStatus, 
@@ -22,12 +26,10 @@ function Board ({ rows, columns }) {
     createElevetorsData} = useElevatorController();
 
 
-
-
 /**
- * handle the event when elevator arrived to the destination
- * @param {number} elevatorId - the curr elevetor index in the columns
- * @param {number} floorIndex - the current flor index in the rows
+ * Handles the case that the elevator has reached the requested floor
+ * @param {number} elevatorId - The current elevetor 
+ * @param {number} floorIndex - The current flor index
  * @returns 
  */
 function handleElevetorArrived(elevatorId, floorIndex){
@@ -61,14 +63,14 @@ function handleElevetorArrived(elevatorId, floorIndex){
 }
 
 /**
- * handle when calling to an alevator
- * @param {number} floorIndex - the index of the floor that the calling from
+ * Called when a floor requests an elevator
+ * @param {number} floorIndex - The index of the floor to which the elevator will go
  */
 function handleElevatorReservation(floorIndex) {
   //if the elevator controller dont have Available elevator ...
   let elevator;
   if((elevator = checkForAvailableElevator(floorIndex)) === undefined){
-    //push the floor to queue
+    //push the floor to pending queue
     enqueue(floorIndex)  
     setButtonStatus(floorIndex, BUTTON_STATUS.WAITING)
 
@@ -103,10 +105,13 @@ function sendElevetorToFloor(elevatorId, currFLoor, toFloor){
   changeElevetorStatus(currFLoor, toFloor, elevatorId, elevatorArrivedClouser, ELEVATOR_COLORS.RED)
 }
 
+
+
+
   
   return (
-    <div className='main'>
-      <div className="board">
+    <div className='main' >
+      <div id="container" className="board"  >
         {createFloors(handleElevatorReservation)}
         {createElevetorsData(handleElevetorArrived, columns, rows)}
     </div>
