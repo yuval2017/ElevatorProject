@@ -64,9 +64,9 @@ The Floor.jsx component allows users to call elevators and displays the estimate
 The styles folder contains CSS files for styling the different components.
 
 # Resources
-react-spring library documentation: https://www.react-spring.io/
-Bootstrap documentation: https://getbootstrap.com/docs/5.1/getting-started/introduction/
-React documentation: https://reactjs.org/docs/getting-started.html
+- react-spring library documentation: https://www.react-spring.io/
+- Bootstrap documentation: https://getbootstrap.com/docs/5.1/getting-started/introduction/
+- React documentation: https://reactjs.org/docs/getting-started.html
 
 
 
