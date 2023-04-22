@@ -45,6 +45,7 @@ The project directory is structured as follows:
 
 ## Configuration
 The `config.jsx` file defines the number of elevators and the number of floors for the simulation.
+also defines the elevator speed, friction, mass, duration and tension
 
 ## Controllers
 There are two controller components that manage the elevator and floor functionality:
