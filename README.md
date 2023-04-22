@@ -1,70 +1,78 @@
-# Getting Started with Create React App
+# Elevator Exercise
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
+This project is a simulation of an elevator system that allows users to call and ride elevators between multiple floors. The project is built using React and several libraries, including `react-spring` and `Bootstrap`.
 
-## Available Scripts
+## Installation
+To install the required libraries for this project, run the following commands in your terminal:
 
-In the project directory, you can run:
+<pre>
+<code>
+npm install react-spring
+npm install react-bootstrap bootstrap
+</code>
+</pre>
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Project Structure
+The project directory is structured as follows:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+- root
+  - src
+    - components
+      - Board.jsx
+      - CountTimer.jsx
+      - Elevator.jsx
+      - Floor.jsx
+    - constants
+      - config.jsx
+      - constants.jsx
+    - context
+      - elevatorController.jsx
+      - floorContoller.jsx
+      - playMusic.jsx
+      - Queue.jsx
+    - styles
+      - boardStyles.css
+      - elevatorStyles.css
+      - floorStyles.css
+      - timerStyles.css
+    - App.jsx
+  - public
+    - index.html
+   
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Configuration
+The `config.jsx` file defines the number of elevators and the number of floors for the simulation.
 
-### `npm run build`
+## Controllers
+There are two controller components that manage the elevator and floor functionality:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### `elevatorController.jsx`
+This component controls the elevators in the simulation. It brings an available elevator to the requested floor if there is one, and handles the animation of moving the elevators using the `react-spring` library.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `floorController.jsx`
+This component handles the buttons and time slots for each floor. When a button is pressed, the nearest elevator is called to the floor. If there are no available elevators, the floor is added to a queue.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Board
+The `Board.jsx` component serves as a facade between the elevator and floor controllers.
 
-### `npm run eject`
+## Elevator
+The `Elevator.jsx` component is responsible for moving between floors. When an elevator is called, it turns red. When it arrives at a requested floor, it plays a sound, waits for 2 seconds, and then either goes to the next requested floor or waits for new calls.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Floor
+The `Floor.jsx` component allows users to call elevators and displays the estimated time for the nearest elevator to reach the floor. When an elevator becomes available, it will automatically reach the floor that has been waiting the longest.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Styles
+The `styles` folder contains CSS files for styling the different components.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Resources
+- `react-spring` library documentation: https://www.react-spring.io/
+- `Bootstrap` documentation: https://getbootstrap.com/docs/5.1/getting-started/introduction/
+- `React` documentation: https://reactjs.org/docs/getting-started.html
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
