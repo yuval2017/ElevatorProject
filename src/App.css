@@ -1,0 +1,34 @@
+.start {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-family: Roboto, Arial;
+  font-size: 34px; /* Increase the font size */
+  padding: 20px 10px; /* Increase the padding */
+  border-radius: 12px; /* Adjust the border-radius */
+  cursor: pointer;
+  transition-duration: 0.4s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  width: 30%; /* Adjust the button width */
+}
+
+.start:hover {
+  background-color: #45a049;
+}
+
+.start i {
+  margin-right: 12px; /* Adjust the icon margin */
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}

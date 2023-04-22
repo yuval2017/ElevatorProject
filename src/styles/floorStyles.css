@@ -1,9 +1,9 @@
-.floor{
+/* Floor styles */
+.floor {
   display: flex;
   align-items: center;
   z-index: 200;
   gap: 10px;
-  
 }
 
 .floor-number {
@@ -14,28 +14,25 @@
   white-space: nowrap;
 }
 
-.floor-squares{
+.floor-squares {
   display: flex;
   flex: 1;
   margin-right: 3px;
 }
-.square {
+
+.floor-squares .square {
   width: 85px;
   height: 47px;
   border: none;
   background-color: white;
   border: 0.1px solid rgb(228, 225, 225);
-
   display: flex;
   justify-content: flex-start;
   align-items: center;
-
   font-weight: 400;
   padding-left: 14px;
   padding-bottom: 10px;
 }
-
-
 .elevator-button-waiting,
 .elevator-button-call,
 .elevator-button-arrived {
@@ -47,10 +44,10 @@
   font-weight: 700;
   border-radius: 3px;
   border: none;
-  color: white;
   transition: background-color 0.15s;
-  
+  color: white; 
 }
+
 .elevator-button-waiting:not(:disabled):hover,
 .elevator-button-call:not(:disabled):hover,
 .elevator-button-arrived:not(:disabled):hover {
@@ -58,16 +55,15 @@
   transform: translateY(-1px);
 }
 
-
-
-.elevator-button-waiting{
+.elevator-button-waiting {
   background-color: rgb(237,72,77);
-  
 }
-.elevator-button-call{
+
+.elevator-button-call {
   background-color: rgb(92,205,136);
 }
-.elevator-button-arrived{
+
+.elevator-button-arrived {
   font-weight: bold;
   background-color: rgb(218, 214, 214);
   color: rgb(92,205,136);

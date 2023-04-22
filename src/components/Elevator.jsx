@@ -1,12 +1,19 @@
 import { animated, useSpring,  } from 'react-spring';
-import '../styles/elevatorStyles.css'
-import { useAudioPlayer } from '../context/playMusic';
 import { useEffect } from 'react';
+import PropTypes from 'prop-types';
+// Styles
+import '../styles/elevatorStyles.css'
+// Contexts
+import { useAudioPlayer } from '../context/playMusic';
+// Constants
 import { ELEVATOR_COLORS } from '../constants/constants';
+import { ELEVATOR_CLAMP, ELEVATOR_DURATION, ELEVATOR_FRICTION, ELEVATOR_MASS, ELEVATOR_TENSTION } from '../constants/config';
+
+
+
 
 function Elevator ({ y , style, handleElevetorArrived, color, dist})  {
   const { playAudio } = useAudioPlayer();
-
 
 
 useEffect(() => {
@@ -16,28 +23,32 @@ useEffect(() => {
    // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [color]);
 
-  const spring = useSpring({
-    to: { y },
-    
-    config: {
-      clamp:true,
-      //duration: 4000*dist, // set a longer duration for the animation
-      //mass: 20, // increase the mass value to make the animation slower and more deliberate
-      tension: 100*dist, // reduce the tension value to make the animation slower and smoother
-      friction: 150*dist, // increase the friction value to make the animation smoother
-  
-    },
-   onRest: () => {
+const tension = dist * ELEVATOR_TENSTION;
+const friction = dist * ELEVATOR_FRICTION;
+const config = ELEVATOR_DURATION?
+  {
+    clamp: ELEVATOR_CLAMP,
+    tension,
+    friction,
+    mass: ELEVATOR_MASS,
+    duration: ELEVATOR_DURATION
+  }:{
+  clamp: ELEVATOR_CLAMP,
+  tension,
+  friction,
+  mass: ELEVATOR_MASS,
+}
 
+const spring = useSpring({
+  to: { y },
+  config: config,
+  onRest: () => {
     handleElevetorArrived();
   },
-  
   onUpdate: ({ y }) => {
-   
     console.log(`Elevator current position: ${y}`);
   },
-  
-  });
+});
 
 
   return (
@@ -53,5 +64,12 @@ useEffect(() => {
     </animated.div>
   );
 };
-
+Elevator.propTypes = {
+  y: PropTypes.number.isRequired,
+  dist: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
+  handleElevetorArrived: PropTypes.func.isRequired,
+  styles: PropTypes.object.isRequired,
+  squareRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+};
 export default Elevator;

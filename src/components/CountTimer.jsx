@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
+// Styles
 import '../styles/timerStyles.css'
+// Constants
 import { TIMER } from '../constants/constants';
 
 
@@ -52,6 +55,10 @@ function CountDownTimer  ({onChange, styles}) {
     {formatTime(time)}
   </div>
   );
+};
+CountDownTimer.propTypes = {
+  onChange: PropTypes.string.isRequired,
+  styles: PropTypes.object.isRequired,
 };
 
 export default CountDownTimer;

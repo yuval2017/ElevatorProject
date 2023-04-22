@@ -1,70 +1,64 @@
 import React, { createContext, useContext, useState } from 'react';
+import PropTypes from 'prop-types';
+// Constants
 import { BUTTON_STATUS } from '../constants/constants';
 import { TIMER } from '../constants/constants';
+// Conponents
 import Floor from '../components/Floor';
+// Contexts
 import { useElevatorController } from './elevatorController';
 
 const FloorControllerContext = createContext();
 
-export const useFloorController = () => {
-  return useContext(FloorControllerContext);
+// The useFloorController function is a custom hook that provides access to the floor controller context.
+export const useFloorController = (data) => {
+  const context =  useContext(FloorControllerContext);
+  return { ...context, ...data };
 };
 
-
-const FloorControllerProvider = ({ children, columns, rows }) => {
+// The FloorControllerProvider component is a context provider that manages floor-related state and actions.
+const FloorControllerProvider = ({ children, columns, rows, data }) => {
   const {squareRef} = useElevatorController()
   const [floorsData, setFloorsData] = useState(createFloorsData())
 
   function createFloorsData() {
-    const ans = [];
-    for (let i = 0; i < rows; i++) {
-      const timesArr = new Array(columns).fill(TIMER.STOP); 
-      ans.push({
+    return Array.from({ length: rows }, (_, i) => {
+      const timesArr = new Array(columns).fill(TIMER.STOP);
+      return {
         key: `floor-${i}`,
         index: rows - i - 1,
         buttonStatus: BUTTON_STATUS.CALL,
         timeArr: timesArr
-      });
-    }
-    return ans;
+      };
+    });
   }
-
   /**
    * Hides or turns off the hours in the slot
    * @param {number} floorIndex - Row number
    * @param {number} elevatorIndex - Column number
    * @param {string, opacity} param2 - the action on the time in the square (show/hide)
    */
-  function handleClockAction(floorIndex, elevatorIndex, { onChange: action, styles: newStyles }){
-    //help function inside a function, set the square time
-    function setTime(timersArr) {
-      return timersArr.map((timer, i) => {
-        if (i === elevatorIndex) {
-          return {
-            ...timer,
-            onChange: action,
-            styles: newStyles
-          };
-        } else {
-          return timer;
-        }
-      });
-    }
-
-    //set the flloor data to change the clocks
+  function handleClockAction(floorIndex, elevatorIndex, { onChange: action, styles: newStyles }) {
     setFloorsData(prevData =>
-        prevData.map(floorData =>
-          {
-            const newData = floorData.index === floorIndex? {
-              ...floorData, 
-              timeArr: setTime(floorData.timeArr)
-            }:floorData 
-            if(floorData.index === floorIndex){
+      prevData.map(floorData => {
+        if (floorData.index === floorIndex) {
+          const updatedTimeArr = floorData.timeArr.map((timer, i) => {
+            if (i === elevatorIndex) {
+              return {
+                ...timer,
+                onChange: action,
+                styles: newStyles
+              };
             }
-            return newData
-          }
-      ))
+            return timer;
+          });
+          return { ...floorData, timeArr: updatedTimeArr };
+        }
+        return floorData;
+      })
+    );
   }
+  
 
   /**
    * 
@@ -112,6 +106,12 @@ const FloorControllerProvider = ({ children, columns, rows }) => {
       {children}
     </FloorControllerContext.Provider>
   );
+};
+FloorControllerProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  columns: PropTypes.number.isRequired,
+  rows: PropTypes.number.isRequired,
+  data: PropTypes.array // Add a more specific shape if needed
 };
 
 export default FloorControllerProvider;

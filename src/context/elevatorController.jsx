@@ -1,21 +1,24 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
+// Constants
 import { ELEVATOR_COLORS } from '../constants/constants';
+// Contexts
 import { useQueue } from './Queue';
 import { AudioPlayerProvider } from '../context/playMusic';
 import { audioFilePath } from '../constants/config';
+// Conponents
 import Elevetor from '../components/Elevator'
 
 
 
 const ElevatorControllerContext = createContext();
 
-
-
-export const useElevatorController = () => {
-  return useContext(ElevatorControllerContext);
+const useElevatorController = (additionalData) => {
+  const context = useContext(ElevatorControllerContext);
+  return { ...context, ...additionalData };
 };
 
-const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
+const ElevatorControllerProvider = ({ children, elevatorsNum, additionalData }) => {
   const squareRef = useRef(null)
   const [elevatorsData, setElevatorsData] = useState([]);
   const {size} = useQueue()
@@ -24,17 +27,16 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
   const height = squareData.height 
   
 //initiate thes square and elevators data
-  useEffect(() => {
-    if (squareRef.current) {
-      const squarFef = squareRef.current.getBoundingClientRect();
-      setSquareData(squarFef)
-      initElevatorDta(width)
-    }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [squareRef]);
+useEffect(() => {
+  if (squareRef.current) {
+    const squareRect = squareRef.current.getBoundingClientRect();
+    setSquareData(squareRect);
+    initElevatorData(squareRect.width);
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [squareRef]);
 
-
-  function initElevatorDta(width) {
+  function initElevatorData(width) {
     const elevators = [];
     for (let i = 0; i < elevatorsNum; i++) {
       elevators.push({
@@ -69,7 +71,7 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
       if (distance < closestDistance) {
         closestDistance = distance;
         closestElevator = object;
-      }
+      } 
     }
     return closestElevator
   }
@@ -98,7 +100,7 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
    * @param {funtion} afterArrivedClouser - The action to be taken after the elevator arrives.
    * @param {string} color - The color new color of the elevator.
    */
-  function changeElevetorStatus(currFloor,toFloor, elevatorNumber, afterArrivedClouser, color){
+  function changeElevatorStatus(currFloor,toFloor, elevatorNumber, afterArrivedClouser, color){
     setElevatorsData(prevData => (prevData.map(data =>
       {
         return data.key === elevatorNumber?
@@ -136,35 +138,41 @@ const ElevatorControllerProvider = ({ children, elevatorsNum }) => {
    * @param {*} rows - Number of floors.
    * @returns Elevators in HTML code
    */
-  function createElevetorsData(afterArrivedClouser, columns, rows){
-    return  <div className='elevators-container' style={{width: `${width*columns}px`,height: `${height*rows}px`}}>
-    {elevatorsData.map(data => (
-      <AudioPlayerProvider path={audioFilePath} key = {data.key} index={data.key}>
-        <Elevetor
-          key={data.key}
-          y={data.y}
-          color={data.color}
-          style={{ width: `${width}px`, height: `${height}px` }}
-          handleElevetorArrived={afterArrivedClouser(data.key, data.toFloor)}
-          dist={data.dist}
-        />
-      </AudioPlayerProvider>
-    )) }
-    </div>
+  function createElevatorData(afterArrivedClouser, columns, rows){
+    return (
+      <div className='elevators-container' style={{width: `${width*columns}px`,height: `${height*rows}px`}}>
+        {elevatorsData.map(data => (
+          <AudioPlayerProvider path={audioFilePath} key={data.key} index={data.key}>
+              <Elevetor
+                key={data.key}
+                y={data.y}
+                color={data.color}
+                styles={{ width: `${width}px`, height: `${height}px` }}
+                handleElevetorArrived={afterArrivedClouser(data.key, data.toFloor)}
+                dist={data.dist}
+              />
+          </AudioPlayerProvider>
+        ))}
+      </div>
+    );
   }
-
-
-  const value = {  
-    squareRef,
-    checkForAvailableElevator, 
-    changeElevetorStatus, 
+  
+  const value = {
+    squareRef: squareRef,
+    checkForAvailableElevator,
+    changeElevatorStatus,
     changeElevatorColor,
-    createElevetorsData};
+    createElevatorData,
+  };
   return (
     <ElevatorControllerContext.Provider value={value}>
       {children}
     </ElevatorControllerContext.Provider>
   );
 };
-
-export default ElevatorControllerProvider;
+ElevatorControllerProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  elevatorsNum: PropTypes.number.isRequired,
+  additionalData: PropTypes.object,
+};
+export { ElevatorControllerProvider, useElevatorController, ElevatorControllerContext };

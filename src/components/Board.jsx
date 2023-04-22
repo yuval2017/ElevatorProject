@@ -1,29 +1,38 @@
+// Styles
 import '../styles/boardStyles.css';
-import { useQueue } from '../context/Queue';
+// Constants
 import '../constants/constants'
 import { BUTTON_STATUS, TIMER, ELEVATOR_COLORS } from '../constants/constants';
+// Contexts
+import { useQueue } from '../context/Queue';
 import { useElevatorController} from '../context/elevatorController';
 import { useFloorController } from '../context/floorController';
+//Props types
+import PropTypes from 'prop-types';
 
 
 
+// The Board component represents the main elevator board containing floors and elevators.
 function Board ({ rows, columns }) {
-  const {handleClockAction, createFloors, setButtonStatus} = useFloorController()
   
+/**
+   * control the elevators
+   */
+const {
+  squareRef,
+  checkForAvailableElevator, 
+  changeElevatorStatus, 
+  changeElevatorColor,
+  createElevatorData} = useElevatorController();
+
+  const {handleClockAction, createFloors, setButtonStatus} = useFloorController(squareRef)
+
   /**
    * pending queue
    */
   const { enqueue , dequeue} = useQueue();
-
  
-  /**
-   * control the elevators
-   */
-  const {
-    checkForAvailableElevator, 
-    changeElevetorStatus, 
-    changeElevatorColor,
-    createElevetorsData} = useElevatorController();
+  
 
 
 /**
@@ -32,7 +41,7 @@ function Board ({ rows, columns }) {
  * @param {number} floorIndex - The current flor index
  * @returns 
  */
-function handleElevetorArrived(elevatorId, floorIndex){
+function handleElevatorArrived(elevatorId, floorIndex){
   return () => {
     
     //change elevator color to green
@@ -51,10 +60,10 @@ function handleElevetorArrived(elevatorId, floorIndex){
     setTimeout(() => {
       //if there is floor waiting for elevator send the elevator to that floor
       if (optionalFLoorTo !== undefined) {
-        sendElevetorToFloor(elevatorId, floorIndex, optionalFLoorTo)
+        sendElevatorToFloor(elevatorId, floorIndex, optionalFLoorTo)
       }else{
         //bring back the color to black
-        changeElevetorStatus(floorIndex, -1, elevatorId, () => {}, ELEVATOR_COLORS.BLACK)
+        changeElevatorStatus(floorIndex, -1, elevatorId, () => {}, ELEVATOR_COLORS.BLACK)
       }
       setButtonStatus(floorIndex,BUTTON_STATUS.CALL)
     }, 2000);
@@ -93,30 +102,29 @@ function handleElevatorReservation(floorIndex) {
       //change bottun styles
       setButtonStatus(floorIndex, BUTTON_STATUS.WAITING)
 
-      sendElevetorToFloor(elevatorNumber, elevator.currFloor, floorIndex)
+      sendElevatorToFloor(elevatorNumber, elevator.currFloor, floorIndex)
 
     }
   }
 }
 
-function sendElevetorToFloor(elevatorId, currFLoor, toFloor){
+function sendElevatorToFloor(elevatorId, currFLoor, toFloor){
   handleClockAction(toFloor, elevatorId,TIMER.START)
-  const elevatorArrivedClouser = handleElevetorArrived(elevatorId ,toFloor)
-  changeElevetorStatus(currFLoor, toFloor, elevatorId, elevatorArrivedClouser, ELEVATOR_COLORS.RED)
+  const elevatorArrivedClouser = handleElevatorArrived(elevatorId ,toFloor)
+  changeElevatorStatus(currFLoor, toFloor, elevatorId, elevatorArrivedClouser, ELEVATOR_COLORS.RED)
 }
 
-
-
-
-  
   return (
     <div className='main' >
       <div id="container" className="board"  >
         {createFloors(handleElevatorReservation)}
-        {createElevetorsData(handleElevetorArrived, columns, rows)}
+        {createElevatorData(handleElevatorArrived, columns, rows)}
     </div>
   </div>);
   
 };
-
+Board.propTypes = {
+  rows: PropTypes.number.isRequired,
+  columns: PropTypes.number.isRequired,
+}; 
 export default Board;

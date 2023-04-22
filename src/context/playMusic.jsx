@@ -1,9 +1,9 @@
 import React, { useState, useRef, createContext } from 'react';
+import PropTypes from 'prop-types';
 
 const AudioPlayerContext = createContext();
 
-function AudioPlayerProvider(props) {
-  const {path} = props;
+function AudioPlayerProvider({children, path}) {
   const [audioPath, setAudioPath] = useState(path);
   const audioRef = useRef(null);
   function playAudio() {
@@ -18,7 +18,7 @@ function AudioPlayerProvider(props) {
 
   return (
     <AudioPlayerContext.Provider value={value}>
-      {props.children}
+      {children}
       <audio ref={audioRef} src={audioPath} />
     </AudioPlayerContext.Provider>
   );
@@ -31,5 +31,8 @@ function useAudioPlayer() {
   }
   return context;
 }
-
+AudioPlayerProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  path: PropTypes.string.isRequired,
+};
 export { AudioPlayerProvider, useAudioPlayer };

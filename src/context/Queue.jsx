@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-
+import PropTypes from 'prop-types';
 
 const QueueContext = createContext();
 
@@ -41,5 +41,7 @@ const QueueProvider = ({ children }) => {
     </QueueContext.Provider>
   );
 };
-
+QueueProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 export default QueueProvider;
